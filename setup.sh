@@ -24,3 +24,33 @@ else
         echo 'emacs alias does not exist, adding alias' ; 
 	echo $emacs_alias >> $TARGET_FILE
 fi
+
+emacs_file=$HOME/.emacs
+emacs_dir=$HOME/.emacs.d
+# Remove current symlinks
+if [ -h $emacs_file ]; then
+    # Existing symlink 
+    echo "Removing existing symlink: ${emacs_file}"
+    rm ${emacs_dir} 
+fi
+
+if [ -h $emacs_dir ]; then
+    # Existing symlink 
+    echo "Removing existing symlink: ${emacs_file}"
+    rm ${emacs_dir} 
+fi
+
+# Back up existing configuration files
+dateStr=$(date +%Y-%m-%d-%H%M)
+if [ -f "$emacs_file" ]; then
+	echo "$emacs_file exists, backing up"
+	mv emacs_file "$emacs_file"-"$dateStr".bak
+fi
+
+if [ -d "$emacs_dir" ]; then
+	echo "$emacs_dir exists, backing up"
+	mv $emacs_dir "$emacs_dir"-"dateStr".bak
+fi
+
+# Symlink dotfiles
+ln -s $PWD/.emacs.d $HOME/.emacs.d
