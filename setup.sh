@@ -25,32 +25,30 @@ else
 	echo $emacs_alias >> $TARGET_FILE
 fi
 
-emacs_file=$HOME/.emacs
-emacs_dir=$HOME/.emacs.d
-# Remove current symlinks
-if [ -h $emacs_file ]; then
-    # Existing symlink 
-    echo "Removing existing symlink: ${emacs_file}"
-    rm ${emacs_dir} 
-fi
 
-if [ -h $emacs_dir ]; then
-    # Existing symlink 
-    echo "Removing existing symlink: ${emacs_file}"
-    rm ${emacs_dir} 
-fi
+function removeSymlink() {
+	if [ -h ${1} ]; then
+	    # Existing symlink 
+	    echo "Removing existing symlink: ${1}"
+	    rm ${1} 
+	fi
+}
 
-# Back up existing configuration files
-dateStr=$(date +%Y-%m-%d-%H%M)
-if [ -f "$emacs_file" ]; then
-	echo "$emacs_file exists, backing up"
-	mv emacs_file "$emacs_file"-"$dateStr".bak
-fi
+function backup() {
+	dateStr=$(date +%Y-%m-%d-%H%M)
+	if [ -f ${1} ]; then
+	        echo "${1} exists, backing up"
+	        mv ${1} "${1}"-"$dateStr".bak
+	fi
+}
 
-if [ -d "$emacs_dir" ]; then
-	echo "$emacs_dir exists, backing up"
-	mv $emacs_dir "$emacs_dir"-"dateStr".bak
-fi
+function cleanup(){
+	removeSymlink ${1}
+	backup ${1}
+}
+cleanup $HOME/.emacs
+cleanup $HOME/.emacs.d
+cleanup $HOME/.config/emacs
 
 # Symlink dotfiles
-ln -s $PWD/.emacs.d $HOME/.emacs.d
+ln -s $PWD/emacs $HOME/.config/emacs
