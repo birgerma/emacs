@@ -5,6 +5,11 @@ if [[ $DIST = arch ]]
 then
 	echo "Found arch distro"
 	sudo pacman -Sy emacs --noconfirm
+elif [[ $DIST = debian ]]
+then
+	echo "Found debian distro"
+	sudo apt-get update
+	sudo apt install emacs -y
 else
 	echo "Distribution \"$DIST\" not configured, exiting"
 fi
