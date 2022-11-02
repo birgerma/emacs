@@ -1,3 +1,7 @@
+#+BEGIN_SRC emacs-lisp
+(require 'use-package)
+#+END_SRC
+
 * Common apperence settings
 ** Turn off menu bar
 #+BEGIN_SRC emacs-lisp
@@ -7,8 +11,23 @@
 
 * Common functions
 #+BEGIN_SRC emacs-lisp
+** Reload config
 (defun reloadConf ()
   (interactive)
   (load-file "~/.config/emacs/init.el")
   )
+#+END_SRC
+
+** Highlight selected words
+#+BEGIN_SRC emacs-lisp
+;;(require 'idle-highlight-mode)
+(use-package idle-highlight-mode)
+(idle-highlight-mode t)
+#+END_SRC
+
+** Copy to clipboard
+#+BEGIN_SRC emacs-lisp
+(use-package xclip :ensure t)
+;; (require 'xclip)
+ (xclip-mode 1)
 #+END_SRC
