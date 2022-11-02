@@ -1,0 +1,14 @@
+* Common apperence settings
+** Turn off menu bar
+#+BEGIN_SRC emacs-lisp
+(menu-bar-mode -1)
+#+END_SRC
+
+
+* Common functions
+#+BEGIN_SRC emacs-lisp
+(defun reloadConf ()
+  (interactive)
+  (load-file "~/.config/emacs/init.el")
+  )
+#+END_SRC
