@@ -1,6 +1,38 @@
+
 #+BEGIN_SRC emacs-lisp
 (require 'use-package)
 #+END_SRC
+
+* Apperences
+** Theme
+#+BEGIN_SRC emacs-lisp
+(use-package dracula-theme :ensure t)
+(load-theme 'dracula t)
+
+
+;; ;; Extends margins for line number
+(defun linum-format-func (line)
+  (let ((w (length (number-to-string (count-lines (point-min) (point-max))))))
+    (propertize (format (format "%%%dd " w) line) 'face 'linum)))
+
+(setq linum-format 'linum-format-func)
+
+#+END_SRC
+
+** Show line numbers
+#+BEGIN_SRC emacs-lisp
+(global-linum-mode t)
+#+END_SRC
+
+** Change font color of line numbers
+#+BEGIN_SRC emacs-lisp
+(set-face-foreground 'linum "dark")
+#+END_SRC
+
+#+BEGIN_SRC emacs-lisp
+
+#+END_SRC
+
 
 * Common apperence settings
 ** Turn off menu bar
@@ -10,12 +42,21 @@
 
 
 * Common functions
+** Reload functions
 #+BEGIN_SRC emacs-lisp
-** Reload config
 (defun reloadConf ()
   (interactive)
   (load-file "~/.config/emacs/init.el")
   )
+
+;; Reload current file
+(defun reload ()
+  (interactive)
+  (setq filePath (buffer-file-name))
+  (setq myLine (1+ (count-lines 1 (point))))                                                           
+  (openFile filePath (- myLine 1))                                                                     
+  )                    
+
 #+END_SRC
 
 ** Highlight selected words
@@ -31,3 +72,93 @@
 ;; (require 'xclip)
  (xclip-mode 1)
 #+END_SRC
+
+** Command for duplicating a line to the next                
+#+BEGIN_SRC emacs-lisp
+(defun duplicate-line()
+  (interactive)
+  (move-beginning-of-line 1)
+  (kill-line)
+  (yank)
+  (open-line 1)
+  (next-line 1)
+  (yank)
+  )
+#+END_SRC
+
+** Move text up and down
+#+BEGIN_SRC emacs-lisp
+(defun move-text-internal (arg)
+   (cond
+    ((and mark-active transient-mark-mode)
+     (if (> (point) (mark))
+            (exchange-point-and-mark))
+     (let ((column (current-column))
+              (text (delete-and-extract-region (point) (mark))))
+       (forward-line arg)
+       (move-to-column column t)
+       (set-mark (point))
+       (insert text)
+       (exchange-point-and-mark)
+       (setq deactivate-mark nil)))
+    (t
+     (beginning-of-line)
+     (when (or (> arg 0) (not (bobp)))
+       (forward-line)
+       (when (or (< arg 0) (not (eobp)))
+            (transpose-lines arg))
+       (forward-line -1)))))
+
+(defun move-text-down (arg)
+   "Move region (transient-mark-mode active) or current line
+  arg lines down."
+   (interactive "*p")
+   (move-text-internal arg))
+
+(defun move-text-up (arg)
+   "Move region (transient-mark-mode active) or current line
+  arg lines up."
+   (interactive "*p")
+   (move-text-internal (- arg)))
+#+END_SRC
+
+* Programming functions
+#+BEGIN_SRC emacs-lisp
+(defun comment-or-uncomment-line-or-region ()
+  "Toggles commenting on the current line if no region is defined,
+   otherwise toggles comments on the region"
+  (interactive "*")
+  (let ((use-empty-active-region t) (mark-even-if-inactive nil))
+    (cond
+     ((use-region-p) (comment-or-uncomment-region (region-beginning) (region-end)))
+     (t (comment-or-uncomment-region (line-beginning-position) (line-end-position))))))
+#+END_SRC
+
+
+* Keyboard shortcuts
+** Movement
+#+BEGIN_SRC emacs-lisp
+(global-set-key (kbd "C-n") 'move-beginning-of-line)
+(global-set-key (kbd "C-e") 'backward-word)
+(global-set-key (kbd "C-u") 'forward-word)
+(global-set-key (kbd "C-o") 'move-end-of-line)
+#+END_SRC
+
+** Move text up and down
+#+BEGIN_SRC emacs-lisp
+(global-set-key [\C-\S-up] 'move-text-up)
+(global-set-key (kbd "M-\S-e") 'move-text-down)
+(global-set-key (kbd "M-\S-i") 'move-text-up)
+(global-set-key [\M-n] 'move-text-down)
+#+END_SRC
+
+** Comment line or region
+#+BEGIN_SRC emacs-lisp
+  (global-set-key (kbd "C-c c") 'comment-or-uncomment-line-or-region)
+#+END_SRC
+
+** Copy current line to next
+#+BEGIN_SRC emacs-lisp
+  (global-set-key (kbd "M-q") 'duplicate-line)
+#+END_SRC
+

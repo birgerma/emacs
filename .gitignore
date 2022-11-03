@@ -1,5 +1,9 @@
 *.swp
 auto-save-list
-.*~
-
+#*
+.#*
+*~
+elpa
+settings.el
+network-security.data
 
